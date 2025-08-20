@@ -1,0 +1,535 @@
+<head>
+  <title>YouTube Multiview</title>
+  <script src="https://www.youtube.com/iframe_api"></script>
+  <link
+    rel="shortcut icon"
+    href="https://www.youtube.com/favicon.ico"
+    type="image/x-icon"
+  />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta
+    name="description"
+    content="Explore and enjoy multiviewer on YouTube with our innovative platform. Watch multiple videos simultaneously and enhance your viewing experience."
+  />
+  <meta
+    name="keywords"
+    content="YouTube multiview, multiviewer platform, watch multiple videos, simultaneous viewing, video streaming, enhanced viewing experience, YouTube"
+  />
+  <meta property="og:type" content="website" />
+  <meta
+    property="og:title"
+    content="YouTube Multiviewer - Enhance Your Viewing Experience"
+  />
+  <meta
+    property="og:description"
+    content="Explore and enjoy multiviewer on YouTube with our innovative platform. Watch multiple videos simultaneously and enhance your viewing experience."
+  />
+  <meta property="og:url" content="https://multiviewer.glitch.me/" />
+  <meta name="robots" content="index, follow" />
+  <meta name="referrer" content="strict-origin" />
+</head>
+
+<style>
+  @import url("https://fonts.googleapis.com/css2?family=Oxygen:wght@300&display=swap");
+
+  * {
+    font-family: "Oxygen", sans-serif;
+    text-align: center;
+  }
+
+  body {
+    background-color: rgb(150, 150, 150);
+  }
+
+  #main {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-gap: 10px;
+    padding: 10px;
+    grid-auto-flow: row;
+  }
+
+  .c {
+    position: fixed;
+    top: 10px;
+    right: 10px;
+    border-radius: 10px;
+    background: none;
+    border: none;
+    padding: 5px 10px;
+    background-color:rgb(150,150,150)
+  }
+
+  button {
+    background: none;
+    border: none;
+  }
+
+  .pop {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    display: none;
+    background-color: gray;
+    color: white;
+    width: 50%;
+  }
+
+  input {
+    border: none;
+    background-color: gray;
+    color: white;
+    outline: none;
+  }
+
+  input[type="number"] {
+    width: 20%;
+  }
+
+  #cshow {
+    display: none;
+    right: 0px !important;
+  }
+
+  #manageDiv button,
+  #settingsDiv button,
+  #addDiv button,
+  #addDiv input {
+    border: none;
+    color: white;
+    background-color: gray;
+    padding: 10px;
+    border-radius: 10px;
+    margin: 10px;
+    cursor: pointer;
+    background-color: #0078bd;
+    color: white;
+    width: 80%;
+  }
+
+  #settingsDiv input {
+    background: none !important;
+    color: white !important;
+  }
+
+  select {
+    border: none;
+    background-color: gray;
+    color: white;
+    outline: none;
+    padding: 10px;
+    border-radius: 10px;
+    width: 80%;
+  }
+
+  input[type="text"],
+  input[type="number"] {
+    background-color: whitesmoke !important;
+    color: black !important;
+    border-radius: 10px;
+  }
+
+  a {
+    color: white;
+  }
+</style>
+
+<div id="c" class="c">
+  <button
+    onclick="document.getElementById('c').style.display='none';document.getElementById('cshow').style.display='block'"
+  >
+    <img
+      src="https://cdn.glitch.global/4563da91-1723-46ca-a573-73a43e033c75/right.png?v=1702347543823"
+    />
+  </button>
+  <button id="new">
+    <img
+      src="https://cdn.glitch.global/4563da91-1723-46ca-a573-73a43e033c75/new.png?v=1702347535300"
+    />
+  </button>
+  <button id="playall">
+    <img
+      id="playallimg"
+      src="https://cdn.glitch.global/4563da91-1723-46ca-a573-73a43e033c75/play.png?v=1702347541480"
+    />
+  </button>
+  <button onclick="delAll()">
+    <img
+      src="https://cdn.glitch.global/4563da91-1723-46ca-a573-73a43e033c75/clear.png?v=1702347787780"
+    />
+  </button>
+  <button
+    onclick="document.getElementById('settingsDiv').style.display=='none'?document.getElementById('settingsDiv').style.display='block':document.getElementById('settingsDiv').style.display='none'"
+  >
+    <img
+      src="https://cdn.glitch.global/4563da91-1723-46ca-a573-73a43e033c75/settings.png?v=1702347545808"
+    />
+  </button>
+  <button
+    id="manage"
+    onclick="if(players.length == 0) {return alert('No videos')}; setManage();document.getElementById('manageDiv').style.display=='none'?document.getElementById('manageDiv').style.display='block':document.getElementById('manageDiv').style.display='none'"
+  >
+    <img
+      src="https://cdn.glitch.global/4563da91-1723-46ca-a573-73a43e033c75/list.png?v=1702347532331"
+    />
+  </button>
+</div>
+
+<div id="cshow" class="c">
+  <button
+    onclick="document.getElementById('c').style.display='block';document.getElementById('cshow').style.display='none'"
+  >
+    <img
+      src="https://cdn.glitch.global/4563da91-1723-46ca-a573-73a43e033c75/left.png?v=1702347529212"
+    />
+  </button>
+</div>
+
+<div></div>
+
+<div id="settingsDiv" class="pop">
+  <h2>Settings</h2>
+  Background: <input type="color" id="bgColor" value="#000000" /><br /><br />
+  Grid Gap: <input type="number" id="gridGap" value="10" /> <br /><br />
+  Columns: <input type="number" id="gridColumns" value="3" /><br /><br />
+  Distance (px):
+  <input type="number" id="gridColumnWidth" value="700" /><br /><br />
+  Padding: <input type="number" id="gridPadding" value="10" /><br /><br />
+  Seek All (Seconds): <input type="number" id="seekAll" value="0" />
+  <br /><br />
+  <button onclick="document.getElementById('settingsDiv').style.display='none'">
+    Close
+  </button>
+  <br /><br />
+  <p style="font-size: x-small">
+    YouTube is copyrighted by Google Inc. All rights reserved. This project
+    includes icons from Material Symbols by Google, which are licensed under the
+    Apache 2.0 License. A copy of the license can be
+    <a href="https://www.apache.org/licenses/LICENSE-2.0.html" target="_blank"
+      >viewed here</a
+    >.
+  </p>
+</div>
+
+<div id="manageDiv" class="pop">
+  <h2>Manage</h2>
+  <select id="manageSelect"></select>
+  <button id="del">Delete</button>
+  <button id="hide">Hide</button>
+  <button id="save">Remember</button>
+  <button onclick="document.getElementById('manageDiv').style.display='none'">
+    Close
+  </button>
+</div>
+
+<div id="addDiv" class="pop">
+  <h2>Add Video</h2>
+  <input type="text" id="addInput" placeholder="Enter YouTube video ID" />
+  <input type="number" id="addWidth" placeholder="Enter width. Default: 560" />
+  <input
+    type="number"
+    id="addHeight"
+    placeholder="Enter height. Default: 315"
+  />
+  <button
+    onclick="iframe(document.getElementById('addInput').value, document.getElementById('addWidth').value, document.getElementById('addHeight').value); document.getElementById('addDiv').style.display='none';document.getElementById('addInput').value=''"
+  >
+    Add
+  </button>
+  <button onclick="document.getElementById('addDiv').style.display='none'">
+    Close
+  </button>
+</div>
+
+<div id="main"></div>
+
+<script>
+  const players = [];
+
+  if (!localStorage.getItem("videos")) localStorage.setItem("videos", "[]");
+
+  const delAll = () => {
+    if (!confirm("Are you sure you want to delete all videos?")) return;
+    if (JSON.parse(localStorage.getItem("videos"))) {
+      if (
+        confirm(
+          `You have saved ${
+            JSON.parse(localStorage.getItem("videos")).length
+          } videos. Do you want to delete them?`
+        )
+      ) {
+        localStorage.removeItem("videos");
+      }
+    }
+    document.getElementById("main").innerHTML = "";
+    players = [];
+  };
+
+  const iframe = (id, width, height, startTime) => {
+    const div = document.createElement("div");
+    document.getElementById("main").appendChild(div);
+
+    if (!height) height = 315;
+    if (!width) width = 560;
+
+    try {
+      new URL(id);
+      id = new URL(id).searchParams.get("v");
+    } catch (e) {
+      id = id;
+    }
+
+    const player = new YT.Player(div, {
+      height,
+      width,
+      videoId: id,
+      autoplay: 0,
+      events: {
+        onReady: () => {
+          players.push(player);
+        },
+      },
+    });
+
+    return player;
+  };
+
+  const setManage = () => {
+    document.getElementById("manageSelect").innerHTML = "";
+    document.getElementById(
+      "manageSelect"
+    ).innerHTML += `<option value="-1">Select video</option>`;
+    for (let i = 0; i < players.length; i++) {
+      document.getElementById(
+        "manageSelect"
+      ).innerHTML += `<option value="${i}"> ${i + 1}. ${
+        players[i].getVideoData().title
+      }</option>`;
+    }
+  };
+
+  document.getElementById("seekAll").onchange = () => {
+    if (!confirm("Are you sure you want to seek all videos?")) return;
+    if (document.getElementById("seekAll").value < 0)
+      return alert("Invalid time");
+    players.forEach((player) => {
+      player.seekTo(document.getElementById("seekAll").value);
+    });
+  };
+
+  document.getElementById("del").onclick = () => {
+    if (document.getElementById("manageSelect").value == "-1")
+      return alert("No video selected");
+    const index = document.getElementById("manageSelect").value;
+    players[index].destroy();
+    document
+      .getElementById("main")
+      .removeChild(document.getElementById("main").childNodes[index]);
+    players.splice(index, 1);
+    document.getElementById("manageSelect").innerHTML = "";
+    setManage();
+  };
+
+  document.getElementById("manageSelect").onchange = () => {
+    const el =
+      document.getElementById("main").childNodes[
+        document.getElementById("manageSelect").value
+      ];
+    if (el.style.display == "none") {
+      document.getElementById("hide").innerHTML = "Show";
+    } else {
+      document.getElementById("hide").innerHTML = "Hide";
+    }
+    if (
+      JSON.parse(localStorage.getItem("videos")).find(
+        (video) =>
+          video.id ==
+          players[document.getElementById("manageSelect").value].getVideoData()
+            .video_id
+      )
+    ) {
+      document.getElementById("save").innerHTML = "Forget";
+    } else {
+      document.getElementById("save").innerHTML = "Remember";
+    }
+  };
+
+  document.getElementById("hide").onclick = () => {
+    if (document.getElementById("manageSelect").value == "-1")
+      return alert("No video selected");
+    const el =
+      document.getElementById("main").childNodes[
+        document.getElementById("manageSelect").value
+      ];
+    if (el.style.display == "none") {
+      el.style.display = "block";
+      if (document.getElementById("playallimg").src.includes("pause"))
+        players[document.getElementById("manageSelect").value].playVideo();
+      document.getElementById("hide").innerHTML = "Hide";
+    } else {
+      el.style.display = "none";
+      players[document.getElementById("manageSelect").value].pauseVideo();
+      document.getElementById("hide").innerHTML = "Show";
+    }
+  };
+
+  document.getElementById("save").onclick = () => {
+    if (document.getElementById("manageSelect").value == "-1")
+      return alert("No video selected");
+    const videos = JSON.parse(localStorage.getItem("videos")) || [];
+    videos.push({
+      id: players[document.getElementById("manageSelect").value].getVideoData()
+        .video_id,
+      width:
+        players[document.getElementById("manageSelect").value].getIframe()
+          .width,
+      height:
+        players[document.getElementById("manageSelect").value].getIframe()
+          .height,
+    });
+    document.getElementById("save").innerHTML = "Forget";
+    localStorage.setItem("videos", JSON.stringify(videos));
+  };
+
+  const playAll = () => {
+    players.forEach((player) => {
+      player.playVideo();
+    });
+    document.getElementById("playall").onclick = pauseAll;
+    document.getElementById("playall").oncontextmenu = () => {
+      playAll();
+      return false;
+    };
+    document.getElementById("playallimg").src =
+      "https://cdn.glitch.global/4563da91-1723-46ca-a573-73a43e033c75/pause.png?v=1702347538104";
+  };
+
+  document.getElementById("playall").onclick = playAll;
+
+  const pauseAll = () => {
+    players.forEach((player) => {
+      player.pauseVideo();
+    });
+    document.getElementById("playall").onclick = playAll;
+    document.getElementById("playall").oncontextmenu = () => {
+      pauseAll();
+      return false;
+    };
+    document.getElementById("playallimg").src =
+      "https://cdn.glitch.global/4563da91-1723-46ca-a573-73a43e033c75/play.png?v=1702347541480";
+  };
+
+  document.getElementById("playall").oncontextmenu = () => {
+    pauseAll();
+    return false;
+  };
+
+  document.getElementById("bgColor").onchange = () => {
+    document.body.style.backgroundColor =
+      document.getElementById("bgColor").value;
+    localStorage.setItem("bgColor", document.getElementById("bgColor").value);
+    document.getElementById("c").style.backgroundColor =
+      document.getElementById("bgColor").value;
+  };
+
+  document.getElementById("gridGap").onchange = () => {
+    document.getElementById("main").style.gridGap =
+      document.getElementById("gridGap").value + "px";
+    localStorage.setItem("gridGap", document.getElementById("gridGap").value);
+  };
+
+  document.getElementById("gridColumns").onchange = () => {
+    document.getElementById("main").style.gridTemplateColumns = `repeat(${
+      document.getElementById("gridColumns").value
+    }, ${document.getElementById("gridColumnWidth").value}px)`;
+    localStorage.setItem(
+      "gridColumns",
+      document.getElementById("gridColumns").value
+    );
+  };
+
+  document.getElementById("gridColumnWidth").onchange = () => {
+    document.getElementById("main").style.gridTemplateColumns = `repeat(${
+      document.getElementById("gridColumns").value
+    }, ${document.getElementById("gridColumnWidth").value}px)`;
+    localStorage.setItem(
+      "gridColumnWidth",
+      document.getElementById("gridColumnWidth").value
+    );
+  };
+
+  document.getElementById("gridPadding").onchange = () => {
+    document.getElementById("main").style.padding =
+      document.getElementById("gridPadding").value + "px";
+    localStorage.setItem(
+      "padding",
+      document.getElementById("gridPadding").value
+    );
+  };
+
+  window.onload = () => {
+    if (localStorage.getItem("gridGap")) {
+      document.getElementById("gridGap").value =
+        localStorage.getItem("gridGap");
+      document.getElementById("main").style.gridGap =
+        localStorage.getItem("gridGap") + "px";
+    }
+
+    if (localStorage.getItem("gridColumns")) {
+      document.getElementById(
+        "main"
+      ).style.gridTemplateColumns = `repeat(${localStorage.getItem(
+        "gridColumns"
+      )}, ${localStorage.getItem("gridColumnWidth")}px)`;
+      document.getElementById("gridColumns").value =
+        localStorage.getItem("gridColumns");
+    }
+
+    if (localStorage.getItem("gridColumnWidth")) {
+      document.getElementById(
+        "main"
+      ).style.gridTemplateColumns = `repeat(${localStorage.getItem(
+        "gridColumns"
+      )}, ${localStorage.getItem("gridColumnWidth")}px)`;
+      document.getElementById("gridColumnWidth").value =
+        localStorage.getItem("gridColumnWidth");
+    }
+
+    if (localStorage.getItem("padding")) {
+      document.getElementById("main").style.padding =
+        localStorage.getItem("padding") + "px";
+      document.getElementById("gridPadding").value =
+        localStorage.getItem("padding");
+    }
+
+    if (localStorage.getItem("bgColor")) {
+      document.getElementById("bgColor").value =
+        localStorage.getItem("bgColor");
+      document.body.style.backgroundColor = localStorage.getItem("bgColor");
+      document.getElementById("c").style.backgroundColor =
+        localStorage.getItem("bgColor");
+    } else {
+      document.getElementById("bgColor").value =
+        document.body.style.backgroundColor;
+    }
+
+    if (localStorage.getItem("videos")) {
+      const videos = JSON.parse(localStorage.getItem("videos"));
+      videos.forEach((video) => {
+        iframe(video.id, video.width, video.height);
+      });
+    }
+  };
+
+  document.getElementById("new").onclick = () => {
+    if (document.getElementById("addDiv").style.display == "block") {
+      document.getElementById("addDiv").style.display = "none";
+    } else {
+      document.getElementById("addDiv").style.display = "block";
+    }
+  };
+</script>
